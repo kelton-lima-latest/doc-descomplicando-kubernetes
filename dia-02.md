@@ -79,3 +79,28 @@
 - **Efemeridade**: Alterações feitas diretamente no sistema de arquivos do container (instalação de pacotes ou edição de arquivos) são **perdidas** se o Pod for reiniciado, a menos que haja volumes configurados [19-21].
 - **Reinicialização**: Pela política padrão (`Restart Always`), se o processo principal de um container parar, o Kubernetes tentará subi-lo novamente [19, 22].
 
+# Anotações de Kubernetes - Aula 05: Manifestos e Multicontêiner
+
+## Geração de Manifestos (Dry Run)
+- `kubectl run [nome] --image [imagem] --dry-run=client -o yaml > pod.yaml`: O `--dry-run=client` apenas simula a criação (fingindo que fez, mas não faz no cluster) [1, 2]. Combinado com `-o yaml`, é a melhor forma de gerar um "template" de manifesto rapidamente [2].
+
+## Anatomia do Manifesto YAML
+- **apiVersion**: Define a versão da API (ex: `v1` para objetos estáveis). É crucial saber identificar se a versão mudou para evitar falhas no deploy [3, 4].
+- **Kind**: O tipo de objeto (ex: `Pod`) [4].
+- **Metadata**: Informações *sobre* o Pod (nome, labels, namespace). Não define o funcionamento técnico, mas sim a identificação [4, 5].
+- **Spec**: Especificações técnicas de *como* o Pod deve funcionar (contêineres, volumes, portas) [6].
+- **Identação**: O YAML exige **2 espaços**. Um erro comum é usar o `-` (lista) de forma desalinhada, o que invalida o arquivo [5, 7].
+
+## Gerenciamento: Create vs Apply
+- `kubectl create -f pod.yaml`: Só funciona se o recurso ainda não existir [8, 9].
+- `kubectl apply -f pod.yaml`: Cria se não existir e **atualiza** se já existir [8]. 
+- **Limitação Crítica**: O `apply` **não permite adicionar ou remover contêineres** de um Pod em execução. Nesses casos, é obrigatório deletar o Pod e criá-lo novamente [10, 11].
+
+## Logs e Troubleshooting
+- `kubectl logs [nome-pod]`: Exibe a saída do contêiner [12].
+- `kubectl logs [nome-pod] -c [nome-container]`: Obrigatório em Pods multicontêineres para especificar qual log você deseja ver [13].
+- `kubectl logs -f [nome-pod]`: Modo "follow", mostra os logs em tempo real conforme acontecem [13].
+
+## Conceitos de Pods Multicontêiner
+- **Compartilhamento de Stack de Rede**: Contêineres no mesmo Pod compartilham o mesmo IP e portas. **Erro comum**: Tentar subir dois servidores web (ex: Nginx e Apache) na porta 80 dentro do mesmo Pod causará falha em um deles [13, 14].
+- **Argumentos e Persistência**: Imagens de sistemas puros (Busybox, Ubuntu) "morrem" se não tiverem um processo ativo. Use a seção `args` no YAML para manter o contêiner vivo (ex: `args: ["sleep", "3600"]`) [15, 16].
