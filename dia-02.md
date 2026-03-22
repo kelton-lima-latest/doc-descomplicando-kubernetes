@@ -104,3 +104,47 @@
 ## Conceitos de Pods Multicontêiner
 - **Compartilhamento de Stack de Rede**: Contêineres no mesmo Pod compartilham o mesmo IP e portas. **Erro comum**: Tentar subir dois servidores web (ex: Nginx e Apache) na porta 80 dentro do mesmo Pod causará falha em um deles [13, 14].
 - **Argumentos e Persistência**: Imagens de sistemas puros (Busybox, Ubuntu) "morrem" se não tiverem um processo ativo. Use a seção `args` no YAML para manter o contêiner vivo (ex: `args: ["sleep", "3600"]`) [15, 16].
+
+# Anotações de Kubernetes - Aula 06: Limites de Recursos
+
+## Importância da Gestão de Recursos
+- **Segurança e Estabilidade**: Definir limites evita que uma aplicação com erro ("bug") consuma toda a memória do cluster e prejudique outros Pods [1].
+- **Dimensionamento**: É o que permite saber o tamanho exato do cluster necessário para suportar suas aplicações [2].
+
+## Configuração no YAML (Bloco `resources`)
+- **Requests (Solicitações)**: É o recurso que o Kubernetes **reserva e garante** para o container assim que ele inicia [3, 4].
+- **Limits (Limites)**: É o teto **máximo** que o container tem permissão para utilizar [3, 5].
+- **Escopo**: A definição de recursos é feita individualmente **por container** e não para o Pod de forma global [6].
+
+## Unidades de Medida
+- **CPU**: Pode ser declarada em frações (ex: `0.3` representa 30% de uma CPU) ou em milicores (ex: `300m`) [4, 7].
+- **Memória**: Geralmente definida em Megabytes (ex: `128Mi` ou `64Mi`) [8, 9].
+
+## Comportamento e Testes Práticos
+- **Comando Describe**: Use `kubectl describe pod` para validar os limites aplicados; o Kubernetes converte automaticamente valores decimais para milicores (ex: 0.5 vira 500m) [4].
+- **Estouro de Memória**: Diferente da CPU, se um container tentar usar mais memória que o definido no `limits`, o processo será interrompido ("Fatal") e o container pode sofrer restart [10].
+- **Monitoramento Interno**: Comandos como `free -m` dentro do container mostram a memória total do **Node (nó)** e não o limite imposto ao container, o que pode ser enganoso [11].
+- **Ferramenta de Stress**: O utilitário `stress` é usado para simular carga e validar se o Kubernetes está limitando corretamente o consumo de CPU e RAM conforme configurado [12, 13].
+
+
+# Anotações de Kubernetes - Aula 07: Volumes e o tipo EmptyDir
+
+## Conceito de Volumes
+- **Persistência Básica**: Sem volumes, qualquer dado criado em um container é perdido se ele for reiniciado ou removido [1, 2].
+- **Função**: Um volume é um ponto de montagem injetado no container que aponta para um local fora do sistema de arquivos efêmero [3, 4].
+
+## O Volume tipo EmptyDir
+- **Definição**: Inicia como um diretório vazio para armazenar informações do Pod [5, 6].
+- **Compartilhamento e Colaboração**: Todos os contêineres no mesmo Pod acessam o mesmo volume, permitindo que troquem arquivos em tempo real (ex: um sidecar processando logs da aplicação principal) [4, 7, 8].
+- **Ciclo de Vida**: 
+    - Os dados **sobrevivem a restarts** do container [2].
+    - Os dados **são excluídos permanentemente** se o Pod for removido ou movido de nó [2, 9].
+
+## Configuração no YAML
+- **volumeMounts**: Define o caminho (mountPath) e o nome do volume dentro do container [10, 11].
+- **volumes**: Define o volume no nível do Pod [12, 13].
+- **Limites**: O parâmetro `sizeLimit` é essencial para evitar que um volume temporário consuma todo o disco do nó host [6, 14].
+
+## Verificação e Troubleshooting
+- **kubectl describe**: Valida se o volume foi montado corretamente e seu status (RW - Read/Write por padrão) [15].
+- **Comando mount**: Dentro do container (via `exec`), o comando `mount` mostra qual dispositivo está servindo aquele diretório [15, 16].
