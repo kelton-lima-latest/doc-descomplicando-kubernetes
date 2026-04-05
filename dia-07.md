@@ -29,3 +29,13 @@ kubectl get svc - lista serviços no cluster
 kubectl expose deployment nome-deployment --type NodePort
 
 kubectl get endpoints
+
+# aula 08
+kubectl expose deployment nome-deployment --type LoadBalancer - funciona com cloud provider. para funcionar local ou homelab é necessário utilizar metallb
+
+service external name - expõe serviços externos para dentro do cluster
+
+kubectl create service externalname nome-serviço --external-name db.servico.com.br
+
+# aula 09
+kubectl expose service nome-service --type NodePort -  service apontando para outro service - utilizado para services que não podem ser expostos por motivos de segurnça ou regras de rede. utilizado para resolver problemas.
