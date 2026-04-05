@@ -151,3 +151,123 @@ spec:
           failureThreshold: 3 # quantidade de vezes que aplicação precisa falhar para ser reconhecido com erro. Após aguardar todas as tentativas, o container é reiniciado
 ```
 
+# aula 10
+readiness probe - faz healthckech e verifica se aplicação está pronta para receber requisição. Se o teste falhar o pod é removido da lista de requisições
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-deployment
+  name: nginx-deployment
+#  namespace: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment
+    spec:
+      containers:
+      - image: nginx:1.16.0
+        name: nginx
+        resources:
+          limits:
+            cpu: "1.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10 # tempo de espera para iniciar primeira verificação
+          periodSeconds: 10 # intervalo de tempo de cada verificação
+          timeoutSeconds: 5 # tempo de espera para indicar problema na aplicação
+          failureThreshold: 3 # quantidade de vezes que aplicação precisa falhar para ser reconhecido com erro. Após aguardar todas as tentativas, o container é reiniciado
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10 # tempo de espera para iniciar primeira verificação
+          periodSeconds: 10 # intervalo de tempo de cada verificação
+          timeoutSeconds: 5 # tempo de espera para indicar problema na aplicação
+          failureThreshold: 3 # quantidade de vezes que aplicação precisa falhar para ser reconhecido com erro. Após aguardar todas as tentativas, o container é reiniciado
+          successThreshold: 1
+```
+
+# aula 11
+
+startup probe - Garante que o container foi iniciado com sucesso. Executado uma única vez, no início de vida do container.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-deployment
+  name: nginx-deployment
+#  namespace: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment
+    spec:
+      containers:
+      - image: nginx:1.16.0
+        name: nginx
+        resources:
+          limits:
+            cpu: "1.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10 # tempo de espera para iniciar primeira verificação
+          periodSeconds: 10 # intervalo de tempo de cada verificação
+          timeoutSeconds: 5 # tempo de espera para indicar problema na aplicação
+          failureThreshold: 3 # quantidade de vezes que aplicação precisa falhar para ser reconhecido com erro. Após aguardar todas as tentativas, o container é reiniciado
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10 # tempo de espera para iniciar primeira verificação
+          periodSeconds: 10 # intervalo de tempo de cada verificação
+          timeoutSeconds: 5 # tempo de espera para indicar problema na aplicação
+          failureThreshold: 3 # quantidade de vezes que aplicação precisa falhar para ser reconhecido com erro. Após aguardar todas as tentativas, o container é reiniciado
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10 # tempo de espera para iniciar primeira verificação
+```
+
+
+
+
+
+
+
+
+
+
+
