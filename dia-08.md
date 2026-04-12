@@ -65,3 +65,9 @@ spec:
 
 set - lista todas as variáveis de ambiente  
 kubectl exec -it nome-pod -c nome-container -- env - lista todas as variáveis de ambiente
+
+# aula 08
+configmap - utilizado para guardar configurações dentro dos pods. atualização do configmap e ecret não reflete automaticamente dentro do pod
+
+# aula 09
+
