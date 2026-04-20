@@ -48,3 +48,4 @@ spec:
     path: /mnt/data
   storageClassName: giropops
 ```
+
