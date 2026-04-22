@@ -10,3 +10,5 @@ configurando kind
 
 # aula 04
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/baremetal/deploy.yaml
+
+# aula 05
